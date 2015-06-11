@@ -1,0 +1,99 @@
+{
+  "ID": "do_DateTimePicker",
+  "IsContainer": "0",
+  "Type": "SM",
+  "Name": "日期,时间选择控件",
+  "Version": "Internal",
+  "Description": "日期，时间选择控件",
+  "Icon": "",
+  "IOS": {
+    "Support": 0,
+    "MinVersion": ""
+  },
+  "Android": {
+    "Support": 0,
+    "MinVersion": ""
+  },
+  "Windows": {
+    "Support": 0,
+    "MinVersion": ""
+  },
+  "WindowsPhone": {
+    "Support": 0,
+    "MinVersion": ""
+  },
+  "Html": {
+    "Support": 1,
+    "MinVersion": "5.0"
+  },
+  "Properties": [],
+  "Events": [],
+  "syncMethodes": [],
+  "asyncMethodes": [
+    {
+      "ID": "show",
+      "Name": "弹出选择日期，时间，或日期时间窗口",
+      "Description": "",
+      "ReturnType": "Node",
+      "ReturnDesc": "{\\\"flag\\\":1,\\\"time\\\":\\\"2312412343\\\"}，flag = 1 表示点击了button1按钮，flag = 2 表示点击了button2按钮，time表示long型时间",
+      "Paras": [
+        {
+          "ID": "type",
+          "Name": "打开窗口的类型",
+          "Type": "Number",
+          "Required": 0,
+          "DefaultValue": "",
+          "Description": "1表示日期及时间，2表示只有日期，3表示只有时间"
+        },
+        {
+          "ID": "data",
+          "Name": "预设置的日期",
+          "Type": "String",
+          "Required": 0,
+          "DefaultValue": "232355223878",
+          "Description": "long型时间，缺失值是当前日期时间long型"
+        },
+        {
+          "ID": "maxDate",
+          "Name": "最大日期",
+          "Type": "String",
+          "Required": 0,
+          "DefaultValue": "534787996673",
+          "Description": "long型时间，缺省值是2099年对应的long型"
+        },
+        {
+          "ID": "minDate",
+          "Name": "最小日期",
+          "Type": "String",
+          "Required": 0,
+          "DefaultValue": "236890546723",
+          "Description": "long型时间，最小日期不能大于最大日期，缺省值是1900年对应的long型"
+        },
+        {
+          "ID": "title",
+          "Name": "窗口的标题",
+          "Type": "String",
+          "Required": 0,
+          "DefaultValue": "日期时间选择",
+          "Description": "缺省值是‘时间选择’或者‘日期选择’或者‘日期时间选择’，根据type来区分"
+        },
+        {
+          "ID": "button1text",
+          "Name": "左边按钮1的正文",
+          "Type": "String",
+          "Required": 0,
+          "DefaultValue": "确定",
+          "Description": "为空不显示当前按钮"
+        },
+        {
+          "ID": "button2text",
+          "Name": "右边按钮2的正文",
+          "Type": "String",
+          "Required": 0,
+          "DefaultValue": "取消",
+          "Description": "为空不显示当前按钮"
+        }
+      ]
+    }
+  ]
+}

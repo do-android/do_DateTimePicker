@@ -1,0 +1,13 @@
+*.class
+*.apk
+bin/
+gen/
+.settings/
+proguard/
+*.classpath
+/doExt_do_Button/do_Button.zip
+/doExt_do_Button/do_build.xml
+/doExt_do_Button/libs/docore.jar
+/doExt_do_DateTimePicker/do_build.xml
+/doExt_do_DateTimePicker/libs/docore.jar
+/doExt_do_DateTimePicker/do_DateTimePicker.zip
