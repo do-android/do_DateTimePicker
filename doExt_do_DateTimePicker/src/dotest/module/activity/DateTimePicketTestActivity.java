@@ -39,7 +39,7 @@ public class DateTimePicketTestActivity extends DoTestActivity {
         _paras_loadString.put("maxDate", 636259800000L );//1609344000000
         
         try {
-			_paras_loadString.put("buttons", new JSONArray("[\"确定\",\"确定1\",\"确定1\",\"确定1\"]"));
+			_paras_loadString.put("buttons", new JSONArray("[\"取消\",\"知道了\",\"确定\"]"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

@@ -45,6 +45,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 	private Calendar calendar; // 通过Calendar获取系统时间
 	private DatePicker datePicker;
 	private TimePicker timePicker;
+	private AlertDialog dialog;
 
 	public do_DateTimePicker_Model() throws Exception {
 		super();
@@ -161,7 +162,8 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		}
 		
 		_builder.setView(_childLayout);
-		_builder.create().show();
+		dialog = _builder.create();
+		dialog.show();
 	}
 	
 	private class MyListener implements  View.OnClickListener{
@@ -200,10 +202,11 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 				_value.put("flag", which);
 				_value.put("time", getTime(_val)+"");
 			} catch (Exception e) {
-				e.printStackTrace();
+				DoServiceContainer.getLogEngine().writeError("do_DateTimePicker_Model onClick \n\t", e);
 			}
 			_result.setResultNode(_value);
 			scriptEngine.callback(callbackFuncName, _result);
+			dialog.cancel();
 		}
 	}
 	
