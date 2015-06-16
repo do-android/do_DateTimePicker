@@ -14,7 +14,7 @@ import dotest.module.frame.debug.DoService;
 /**
  * 测试扩展组件Activity需继承此类，并重写相应测试方法；
  */
-public class DoTestActivity extends Activity {
+public abstract class DoTestActivity extends Activity {
 	
 	protected DoModule model;
 	
@@ -37,25 +37,19 @@ public class DoTestActivity extends Activity {
 	/**
 	 * 初始化UIView，扩展组件是UIModule类型需要重写此方法；
 	 */
-	protected void initUIView() throws Exception{
-
-	}
+	protected abstract void initUIView() throws Exception;
 
 	/**
 	 * 初始化Model对象
 	 */
-	protected void initModuleModel() throws Exception {
-
-	}
+	protected abstract void initModuleModel() throws Exception;
 
 	/**
 	 * 测试属性
 	 * 
 	 * @param view
 	 */
-	public void doTestProperties(View view) {
-
-	}
+	public abstract void doTestProperties(View view) ;
 
 	/**
 	 * 测试（同步/异步）方法
@@ -70,23 +64,17 @@ public class DoTestActivity extends Activity {
 	/**
 	 * 测试同步方法
 	 */
-	protected void doTestSyncMethod() {
-
-	}
+	protected abstract void doTestSyncMethod();
 
 	/**
 	 * 测试异步方法
 	 */
-	protected void doTestAsyncMethod() {
-
-	}
+	protected abstract void doTestAsyncMethod();
 
 	/**
 	 * 测试Module订阅事件消息
 	 */
-	protected void onEvent() {
-
-	}
+	protected abstract void onEvent();
 
 	/**
 	 * 测试模拟触发一个Module消息事件

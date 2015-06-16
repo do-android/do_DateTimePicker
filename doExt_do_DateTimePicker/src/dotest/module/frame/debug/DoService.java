@@ -57,7 +57,7 @@ public class DoService {
          }
      }
 
-     public static void ansyncMethod(DoModule _module, String _methodName, Map<String, String> _paras, EventCallBack _eventCallBack){
+     public static void ansyncMethod(DoModule _module, String _methodName, Map<String, Object> _paras, EventCallBack _eventCallBack){
          try{
         	 JSONObject _jsonPara = new JSONObject();
              if (_paras != null){

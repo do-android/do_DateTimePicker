@@ -8,18 +8,18 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-sdk
-        deviceone:minSdkVersion="8"
+        deviceone:minSdkVersion="14"
         deviceone:targetSdkVersion="19" />
 
     <application
         deviceone:allowBackup="true"
         deviceone:icon="@drawable/deviceone_launcher"
         deviceone:label="@string/app_name"
-        deviceone:theme="@style/AppTheme"
+        deviceone:theme="@android:style/Theme.Holo.Light.NoActionBar"
         deviceone:name="dotest.module.frame.debug.DoApplication">
         <!-- WebViewSampleTestActivty替换为您测试组件Activity -->
         <activity
-            deviceone:name="dotest.module.activity.WebViewSampleTestActivty"
+            deviceone:name="dotest.module.activity.DateTimePicketTestActivity"
             deviceone:label="@string/app_name" >
             <intent-filter>
                 <action deviceone:name="android.intent.action.MAIN" />
