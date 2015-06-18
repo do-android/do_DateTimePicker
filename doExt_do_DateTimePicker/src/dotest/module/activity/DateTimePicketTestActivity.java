@@ -34,12 +34,12 @@ public class DateTimePicketTestActivity extends DoTestActivity {
 	@Override
 	protected void doTestAsyncMethod() {
 		Map<String, Object>  _paras_loadString = new HashMap<String, Object>();
-        _paras_loadString.put("type", 2);
-        _paras_loadString.put("minDate", 631167000000L );//631152000000
-        _paras_loadString.put("maxDate", 636259800000L );//1609344000000
+        _paras_loadString.put("type", 0);
+//        _paras_loadString.put("minDate", 631167000000L );//631152000000
+//        _paras_loadString.put("maxDate", 636259800000L );//1609344000000
         
         try {
-			_paras_loadString.put("buttons", new JSONArray("[\"取消\",\"知道了\",\"确定\"]"));
+			_paras_loadString.put("buttons", new JSONArray("[]"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
