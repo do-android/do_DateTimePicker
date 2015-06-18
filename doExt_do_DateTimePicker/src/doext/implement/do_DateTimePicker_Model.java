@@ -205,7 +205,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 							timePicker.getCurrentMinute());
 					break;
 				case 1:
-					_val = String.format(Locale.getDefault(), "%d-%02d-%02d", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
+					_val = String.format(Locale.getDefault(), "%d-%02d-%02d 00:00:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
 					break;
 				case 2:
 					Calendar cd = Calendar.getInstance();
