@@ -14,6 +14,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -99,7 +100,8 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 	public void show(JSONObject _dictParas, final DoIScriptEngine _scriptEngine, final String _callbackFuncName) throws JSONException {
 		final int _type = DoJsonHelper.getInt(_dictParas, "type", 0); // 打开窗口的类型:0表示日期及时间，1表示只有日期，2表示只有时间
 		String _data = DoJsonHelper.getString(_dictParas, "data", System.currentTimeMillis() + ""); // 预设置的日期:long型时间，缺失值是当前日期时间long型
-		final String _maxDate = DoJsonHelper.getString(_dictParas, "maxDate", MAXDATE + ""); // 最大日期 :long型时间，缺省值是2099年对应的long型
+		final String _maxDate = DoJsonHelper.getString(_dictParas, "maxDate", MAXDATE + ""); // 最大日期
+																								// :long型时间，缺省值是2099年对应的long型
 		final String _minDate = DoJsonHelper.getString(_dictParas, "minDate", MINDATE + ""); // 最小日期:long型时间，最小日期不能大于最大日期，缺省值是1900年对应的long型
 		String _title = DoJsonHelper.getString(_dictParas, "title", "日期时间选择"); // 日期时间选择:缺省值是‘时间选择’或者‘日期选择’或者‘日期时间选择’，根据type来区分
 		final JSONArray _buttons = DoJsonHelper.getJSONArray(_dictParas, "buttons");
@@ -137,39 +139,30 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 					_childLayout.addView(_childView);
 				}
 
-				if (_buttons.length() > 0) {
-		//			if(_buttons.length() == 1){
-		//				MyListener listener = new MyListener();
-		//				_builder.setPositiveButton(_buttons.getString(0), listener);
-		//			}else if(_buttons.length() == 2){
-		//				MyListener listener = new MyListener();
-		//				_builder.setPositiveButton(_buttons.getString(0), listener);
-		//				_builder.setNegativeButton(_buttons.getString(1), listener);
-		//			}else if(_buttons.length() == 3){
-		//				MyListener listener = new MyListener();
-		//				_builder.setPositiveButton(_buttons.getString(0), listener);
-		//				_builder.setNeutralButton(_buttons.getString(3), listener);
-		//				_builder.setNegativeButton(_buttons.getString(1), listener);
-		//			}else{
-							LinearLayout _ll_btns = new LinearLayout(_activity, null, android.R.attr.buttonBarStyle);
-							_ll_btns.setOrientation(LinearLayout.HORIZONTAL);
-							for (int i = 0; i < _buttons.length(); i++) {
-								Button _btn = new Button(_activity, null, android.R.attr.buttonBarButtonStyle);
-								try {
-									_btn.setText(_buttons.getString(i));
-								} catch (JSONException e) {
-									e.printStackTrace();
-								}
-								_btn.setMinHeight(px2dip(_activity, 54));
-								_btn.setMaxLines(2);
-								_btn.setTextSize(15);
-								_btn.setOnClickListener(new MyListener(_type, i, _scriptEngine, _callbackFuncName));
-								LayoutParams _btn_params = new LayoutParams(0, -2);
-								_btn_params.weight = 1;
-								_ll_btns.addView(_btn, _btn_params);
-							}
-							_childLayout.addView(_ll_btns, new LayoutParams(-1, -2));
-		//			}
+				if (_buttons == null) { // 显示确定，取消按钮
+					_builder.setPositiveButton("确定", new MyListener(_type, 2, _scriptEngine, _callbackFuncName));
+					_builder.setNegativeButton("取消", new MyListener(_type, 1, _scriptEngine, _callbackFuncName));
+
+				} else if (_buttons.length() > 0) {
+					LinearLayout _ll_btns = new LinearLayout(_activity, null, android.R.attr.buttonBarStyle);
+					_ll_btns.setOrientation(LinearLayout.HORIZONTAL);
+					for (int i = 0; i < _buttons.length(); i++) {
+						Button _btn = new Button(_activity, null, android.R.attr.buttonBarButtonStyle);
+						try {
+							_btn.setText(_buttons.getString(i));
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						_btn.setMinHeight(px2dip(_activity, 54));
+						_btn.setMaxLines(2);
+						_btn.setTextSize(15);
+						_btn.setOnClickListener(new MyListener(_type, i, _scriptEngine, _callbackFuncName));
+						LayoutParams _btn_params = new LayoutParams(0, -2);
+						_btn_params.weight = 1;
+						_ll_btns.addView(_btn, _btn_params);
+					}
+					_childLayout.addView(_ll_btns, new LayoutParams(-1, -2));
+					// }
 				}
 
 				_builder.setView(_childLayout);
@@ -179,7 +172,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		});
 	}
 
-	private class MyListener implements View.OnClickListener {
+	private class MyListener implements View.OnClickListener, DialogInterface.OnClickListener {
 
 		private int type;
 		private int which;
@@ -195,34 +188,44 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 
 		@Override
 		public void onClick(View v) {
-			DoInvokeResult _result = new DoInvokeResult(getUniqueKey());
-			JSONObject _value = new JSONObject();
-			String _val = null;
-			try {
-				switch (type) {
-				case 0:
-					_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getCurrentHour(),
-							timePicker.getCurrentMinute());
-					break;
-				case 1:
-					_val = String.format(Locale.getDefault(), "%d-%02d-%02d 00:00:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
-					break;
-				case 2:
-					Calendar cd = Calendar.getInstance();
-					cd.setTimeInMillis(System.currentTimeMillis());
-					_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", cd.get(Calendar.YEAR), cd.get(Calendar.MONTH) + 1, cd.get(Calendar.DAY_OF_MONTH),
-							timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-					break;
-				}
-				_value.put("flag", which);
-				_value.put("time", getTime(_val) + "");
-			} catch (Exception e) {
-				DoServiceContainer.getLogEngine().writeError("do_DateTimePicker_Model onClick \n\t", e);
-			}
-			_result.setResultNode(_value);
-			scriptEngine.callback(callbackFuncName, _result);
-			dialog.cancel();
+			callBack(type, which, scriptEngine, callbackFuncName);
 		}
+
+		@Override
+		public void onClick(DialogInterface dialog, int id) {
+			callBack(type, which, scriptEngine, callbackFuncName);
+		}
+	}
+
+	private void callBack(int _type, int _which, DoIScriptEngine _scriptEngine, String _callbackFuncName) {
+		DoInvokeResult _result = new DoInvokeResult(getUniqueKey());
+		JSONObject _value = new JSONObject();
+		String _val = null;
+		try {
+			switch (_type) {
+			case 0:
+				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getCurrentHour(),
+						timePicker.getCurrentMinute());
+				break;
+			case 1:
+				_val = String.format(Locale.getDefault(), "%d-%02d-%02d 00:00:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
+				break;
+			case 2:
+				Calendar cd = Calendar.getInstance();
+				cd.setTimeInMillis(System.currentTimeMillis());
+				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", cd.get(Calendar.YEAR), cd.get(Calendar.MONTH) + 1, cd.get(Calendar.DAY_OF_MONTH), timePicker.getCurrentHour(),
+						timePicker.getCurrentMinute());
+				break;
+			}
+			_value.put("flag", _which);
+			_value.put("time", getTime(_val) + "");
+		} catch (Exception e) {
+			DoServiceContainer.getLogEngine().writeError("do_DateTimePicker_Model onClick \n\t", e);
+		}
+		_result.setResultNode(_value);
+		_scriptEngine.callback(_callbackFuncName, _result);
+		dialog.cancel();
+
 	}
 
 	private View createDateAndTime(int _type, Activity _activity, String _maxDate, String _minDate) {
