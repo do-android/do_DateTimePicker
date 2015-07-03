@@ -140,8 +140,8 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 				}
 
 				if (_buttons == null) { // 显示确定，取消按钮
-					_builder.setPositiveButton("确定", new MyListener(_type, 2, _scriptEngine, _callbackFuncName));
-					_builder.setNegativeButton("取消", new MyListener(_type, 1, _scriptEngine, _callbackFuncName));
+					_builder.setPositiveButton("确定", new MyListener(_type, 1, _scriptEngine, _callbackFuncName));
+					_builder.setNegativeButton("取消", new MyListener(_type, 0, _scriptEngine, _callbackFuncName));
 
 				} else if (_buttons.length() > 0) {
 					LinearLayout _ll_btns = new LinearLayout(_activity, null, android.R.attr.buttonBarStyle);
