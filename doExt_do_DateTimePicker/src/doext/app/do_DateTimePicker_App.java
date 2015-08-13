@@ -29,4 +29,9 @@ public class do_DateTimePicker_App implements DoIAppDelegate {
 	public String getModuleTypeID() {
 		return "do_DateTimePicker";
 	}
+
+	@Override
+	public String getTypeID() {
+		return getModuleTypeID();
+	}
 }
