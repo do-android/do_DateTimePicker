@@ -16,11 +16,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import core.DoServiceContainer;
@@ -47,6 +50,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 	private DatePicker datePicker;
 	private TimePicker timePicker;
 	private AlertDialog dialog;
+	private Activity _activity;
 
 	public do_DateTimePicker_Model() throws Exception {
 		super();
@@ -106,7 +110,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		String _title = DoJsonHelper.getString(_dictParas, "title", "日期时间选择"); // 日期时间选择:缺省值是‘时间选择’或者‘日期选择’或者‘日期时间选择’，根据type来区分
 		final JSONArray _buttons = DoJsonHelper.getJSONArray(_dictParas, "buttons");
 
-		final Activity _activity = DoServiceContainer.getPageViewFactory().getAppContext();
+		_activity = DoServiceContainer.getPageViewFactory().getAppContext();
 		calendar = Calendar.getInstance();
 		// 初始化当前日期
 		calendar.setTimeInMillis(DoTextHelper.strToLong(_data, System.currentTimeMillis()));
@@ -118,20 +122,29 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		_childLayout.setOrientation(LinearLayout.VERTICAL);
 		_activity.runOnUiThread(new Runnable() {
 			View _childView;
+			TextView _mWeekDay;
 
 			@Override
 			public void run() {
 				switch (_type) {
 				case 0:
-					_childView = createDateAndTime(_type, _activity, _maxDate, _minDate);
+					_childView = createDateAndTime(_type, _activity, _maxDate, _minDate, null);
 					break;
 				case 1:
-					createDate(_activity, _maxDate, _minDate);
+					createDate(_activity, _maxDate, _minDate, null);
 					_childView = datePicker;
 					break;
 				case 2:
 					createTime(_type, _activity, _maxDate, _minDate);
 					_childView = timePicker;
+					break;
+				case 3:
+					_mWeekDay = new TextView(_activity);
+					_mWeekDay.setText(getWeekDay(calendar));
+					_mWeekDay.setTextSize(18);
+					_mWeekDay.setGravity(Gravity.CENTER);
+					_mWeekDay.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
+					_childView = createDateAndTime(_type, _activity, _maxDate, _minDate, _mWeekDay);
 					break;
 				}
 
@@ -162,7 +175,6 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 						_ll_btns.addView(_btn, _btn_params);
 					}
 					_childLayout.addView(_ll_btns, new LayoutParams(-1, -2));
-					// }
 				}
 
 				_builder.setView(_childLayout);
@@ -228,19 +240,61 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 
 	}
 
-	private View createDateAndTime(int _type, Activity _activity, String _maxDate, String _minDate) {
+	private class MyDateChangedListener implements OnDateChangedListener {
+
+		private TextView mWeekDay;
+
+		public MyDateChangedListener(TextView _mWeekDay) {
+			this.mWeekDay = _mWeekDay;
+		}
+
+		@Override
+		public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+			final Calendar c = Calendar.getInstance();
+			c.set(year, monthOfYear, dayOfMonth);
+			String wekkDay = getWeekDay(c);
+			if (null != mWeekDay) {
+				mWeekDay.setText(wekkDay);
+			}
+		}
+	}
+
+	private String getWeekDay(Calendar c) {
+		String mWay = String.valueOf(c.get(Calendar.DAY_OF_WEEK));
+		if ("1".equals(mWay)) {
+			mWay = "天";
+		} else if ("2".equals(mWay)) {
+			mWay = "一";
+		} else if ("3".equals(mWay)) {
+			mWay = "二";
+		} else if ("4".equals(mWay)) {
+			mWay = "三";
+		} else if ("5".equals(mWay)) {
+			mWay = "四";
+		} else if ("6".equals(mWay)) {
+			mWay = "五";
+		} else if ("7".equals(mWay)) {
+			mWay = "六";
+		}
+		return "星期" + mWay;
+	}
+
+	private View createDateAndTime(int _type, Activity _activity, String _maxDate, String _minDate, TextView _mWeekDay) {
 		LinearLayout _layout = new LinearLayout(_activity);
 		_layout.setOrientation(LinearLayout.VERTICAL);
-		createDate(_activity, _maxDate, _minDate);
+		createDate(_activity, _maxDate, _minDate, _mWeekDay);
 		_layout.addView(this.datePicker);
+		if (null != _mWeekDay) {
+			_layout.addView(_mWeekDay);
+		}
 		createTime(_type, _activity, _maxDate, _minDate);
 		_layout.addView(this.timePicker);
 		return _layout;
 	}
 
-	private void createDate(Activity _activity, String _maxDate, String _minDate) {
+	private void createDate(Activity _activity, String _maxDate, String _minDate, TextView _mWeekDay) {
 		this.datePicker = new DatePicker(_activity);
-		this.datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), null);
+		this.datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new MyDateChangedListener(_mWeekDay));
 		final long _maxData = DoTextHelper.strToLong(_maxDate, MAXDATE);
 		final long _minData = DoTextHelper.strToLong(_minDate, MINDATE);
 		if (_maxData > _minData) {
