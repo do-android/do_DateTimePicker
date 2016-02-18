@@ -228,6 +228,10 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", cd.get(Calendar.YEAR), cd.get(Calendar.MONTH) + 1, cd.get(Calendar.DAY_OF_MONTH), timePicker.getCurrentHour(),
 						timePicker.getCurrentMinute());
 				break;
+			case 3:
+				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getCurrentHour(),
+						timePicker.getCurrentMinute());
+				break;
 			}
 			_value.put("flag", _which);
 			_value.put("time", getTime(_val) + "");
@@ -262,7 +266,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 	private String getWeekDay(Calendar c) {
 		String mWay = String.valueOf(c.get(Calendar.DAY_OF_WEEK));
 		if ("1".equals(mWay)) {
-			mWay = "天";
+			mWay = "日";
 		} else if ("2".equals(mWay)) {
 			mWay = "一";
 		} else if ("3".equals(mWay)) {
