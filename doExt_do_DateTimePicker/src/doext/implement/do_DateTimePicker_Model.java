@@ -303,7 +303,11 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		final long _minData = DoTextHelper.strToLong(_minDate, MINDATE);
 		if (_maxData > _minData) {
 			this.datePicker.setMaxDate(_maxData);
-			this.datePicker.setMinDate(_minData);
+			if (_minData >= calendar.getTimeInMillis()) {
+				this.datePicker.setMinDate(_minData);
+			} else {
+				DoServiceContainer.getLogEngine().writeError("do_DateTimePicker_Model", new Exception("最小时间设置必须大于或等于当前时间！"));
+			}
 		}
 		this.datePicker.setCalendarViewShown(false);
 	}
