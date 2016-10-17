@@ -101,7 +101,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 	 * @_callbackFuncName 回调函数名
 	 */
 	@Override
-	public void show(JSONObject _dictParas, final DoIScriptEngine _scriptEngine, final String _callbackFuncName) throws JSONException {
+	public void show(JSONObject _dictParas, final DoIScriptEngine _scriptEngine, final String _callbackFuncName) throws Exception {
 		final int _type = DoJsonHelper.getInt(_dictParas, "type", 0); // 打开窗口的类型:0表示日期及时间，1表示只有日期，2表示只有时间
 		String _data = DoJsonHelper.getString(_dictParas, "data", System.currentTimeMillis() + ""); // 预设置的日期:long型时间，缺失值是当前日期时间long型
 		final String _maxDate = DoJsonHelper.getString(_dictParas, "maxDate", MAXDATE + ""); // 最大日期
@@ -117,6 +117,14 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		final AlertDialog.Builder _builder = new AlertDialog.Builder(_activity);
 		if (!TextUtils.isEmpty(_title)) {
 			_builder.setTitle(_title);
+		}
+
+		Calendar _maxCalendar = Calendar.getInstance();
+		_maxCalendar.setTimeInMillis(DoTextHelper.strToLong(_maxDate, MAXDATE));
+		Calendar _minCalendar = Calendar.getInstance();
+		_minCalendar.setTimeInMillis(DoTextHelper.strToLong(_minDate, MINDATE));
+		if (calendar.before(_minCalendar) || calendar.after(_maxCalendar)) {
+			throw new Exception("设置当前时间必须在最大最小时间之间");
 		}
 		final LinearLayout _childLayout = new LinearLayout(_activity, null, android.R.attr.buttonBarStyle);
 		_childLayout.setOrientation(LinearLayout.VERTICAL);
@@ -303,11 +311,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		final long _minData = DoTextHelper.strToLong(_minDate, MINDATE);
 		if (_maxData > _minData) {
 			this.datePicker.setMaxDate(_maxData);
-			if (_minData >= calendar.getTimeInMillis()) {
-				this.datePicker.setMinDate(_minData);
-			} else {
-				DoServiceContainer.getLogEngine().writeError("do_DateTimePicker_Model", new Exception("最小时间设置必须大于或等于当前时间！"));
-			}
+			this.datePicker.setMinDate(_minData);
 		}
 		this.datePicker.setCalendarViewShown(false);
 	}
