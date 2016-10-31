@@ -119,13 +119,35 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 			_builder.setTitle(_title);
 		}
 
-		Calendar _maxCalendar = Calendar.getInstance();
-		_maxCalendar.setTimeInMillis(DoTextHelper.strToLong(_maxDate, MAXDATE));
-		Calendar _minCalendar = Calendar.getInstance();
-		_minCalendar.setTimeInMillis(DoTextHelper.strToLong(_minDate, MINDATE));
-		if (calendar.before(_minCalendar) || calendar.after(_maxCalendar)) {
-			throw new Exception("设置当前时间必须在最大最小时间之间");
+		long _realMaxDate = DoTextHelper.strToLong(_maxDate, MAXDATE);
+		long _realMinDate = DoTextHelper.strToLong(_minDate, MINDATE);
+		//如果是type = 1 ,	将时间转换成 00:00:00
+		if (_type == 1) {
+			//获取当天的整点时间2016-10-28 0:0:0
+			Calendar _tempCalendar = Calendar.getInstance();
+
+			_tempCalendar.setTimeInMillis(_realMaxDate);
+			_tempCalendar.set(_tempCalendar.get(Calendar.YEAR), _tempCalendar.get(Calendar.MONTH), _tempCalendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
+					calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
+			_realMaxDate = _tempCalendar.getTimeInMillis();
+
+			_tempCalendar.setTimeInMillis(_realMinDate);
+			_tempCalendar.set(_tempCalendar.get(Calendar.YEAR), _tempCalendar.get(Calendar.MONTH), _tempCalendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY),
+					calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
+			_realMinDate = _tempCalendar.getTimeInMillis();
 		}
+
+		Calendar _maxCalendar = Calendar.getInstance();
+		_maxCalendar.setTimeInMillis(_realMaxDate);
+		Calendar _minCalendar = Calendar.getInstance();
+		_minCalendar.setTimeInMillis(_realMinDate);
+		if (calendar.before(_minCalendar) || calendar.after(_maxCalendar)) {
+			throw new Exception("设置当前时间(" + calendar.getTimeInMillis() + ")必须在最大(" + _realMaxDate + ")最小(" + _realMinDate + ")时间之间");
+		}
+
+		final long _finalMaxDate = _realMaxDate;
+		final long _finalMinDate = _realMinDate;
+
 		final LinearLayout _childLayout = new LinearLayout(_activity, null, android.R.attr.buttonBarStyle);
 		_childLayout.setOrientation(LinearLayout.VERTICAL);
 		_activity.runOnUiThread(new Runnable() {
@@ -136,14 +158,14 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 			public void run() {
 				switch (_type) {
 				case 0:
-					_childView = createDateAndTime(_type, _activity, _maxDate, _minDate, null);
+					_childView = createDateAndTime(_type, _activity, _finalMaxDate, _finalMinDate, null);
 					break;
 				case 1:
-					createDate(_activity, _maxDate, _minDate, null);
+					createDate(_activity, _finalMaxDate, _finalMinDate, null);
 					_childView = datePicker;
 					break;
 				case 2:
-					createTime(_type, _activity, _maxDate, _minDate);
+					createTime(_type, _activity, _finalMaxDate, _finalMinDate);
 					_childView = timePicker;
 					break;
 				case 3:
@@ -152,7 +174,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 					_mWeekDay.setTextSize(18);
 					_mWeekDay.setGravity(Gravity.CENTER);
 					_mWeekDay.setLayoutParams(new LinearLayout.LayoutParams(-1, -1));
-					_childView = createDateAndTime(_type, _activity, _maxDate, _minDate, _mWeekDay);
+					_childView = createDateAndTime(_type, _activity, _finalMaxDate, _finalMinDate, _mWeekDay);
 					break;
 				}
 
@@ -221,28 +243,32 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		DoInvokeResult _result = new DoInvokeResult(getUniqueKey());
 		JSONObject _value = new JSONObject();
 		String _val = null;
+		Calendar cd = Calendar.getInstance();
 		try {
+			_value.put("flag", _which);
 			switch (_type) {
 			case 0:
 				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getCurrentHour(),
 						timePicker.getCurrentMinute());
+				_value.put("time", getTime(_val) + "");
 				break;
 			case 1:
-				_val = String.format(Locale.getDefault(), "%d-%02d-%02d 00:00:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth());
+				cd.set(datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth(), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
+				//抹掉毫秒值
+				_value.put("time", (cd.getTimeInMillis() / 1000) * 1000);
 				break;
 			case 2:
-				Calendar cd = Calendar.getInstance();
 				cd.setTimeInMillis(System.currentTimeMillis());
 				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", cd.get(Calendar.YEAR), cd.get(Calendar.MONTH) + 1, cd.get(Calendar.DAY_OF_MONTH), timePicker.getCurrentHour(),
 						timePicker.getCurrentMinute());
+				_value.put("time", getTime(_val) + "");
 				break;
 			case 3:
 				_val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getCurrentHour(),
 						timePicker.getCurrentMinute());
+				_value.put("time", getTime(_val) + "");
 				break;
 			}
-			_value.put("flag", _which);
-			_value.put("time", getTime(_val) + "");
 		} catch (Exception e) {
 			DoServiceContainer.getLogEngine().writeError("do_DateTimePicker_Model onClick \n\t", e);
 		}
@@ -291,7 +317,7 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		return "星期" + mWay;
 	}
 
-	private View createDateAndTime(int _type, Activity _activity, String _maxDate, String _minDate, TextView _mWeekDay) {
+	private View createDateAndTime(int _type, Activity _activity, long _maxDate, long _minDate, TextView _mWeekDay) {
 		LinearLayout _layout = new LinearLayout(_activity);
 		_layout.setOrientation(LinearLayout.VERTICAL);
 		createDate(_activity, _maxDate, _minDate, _mWeekDay);
@@ -304,31 +330,37 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 		return _layout;
 	}
 
-	private void createDate(Activity _activity, String _maxDate, String _minDate, TextView _mWeekDay) {
+	private void createDate(Activity _activity, long _maxDate, long _minDate, TextView _mWeekDay) {
 		this.datePicker = new DatePicker(_activity);
 		this.datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new MyDateChangedListener(_mWeekDay));
-		final long _maxData = DoTextHelper.strToLong(_maxDate, MAXDATE);
-		final long _minData = DoTextHelper.strToLong(_minDate, MINDATE);
-		if (_maxData > _minData) {
-			this.datePicker.setMaxDate(_maxData);
-			this.datePicker.setMinDate(_minData);
+		Calendar _maxTime = Calendar.getInstance();
+		_maxTime.setTimeInMillis(System.currentTimeMillis());
+		//如果(选择的日期+当前时间)比最大时间还要大的话，那就把最大时间改成当前时间
+		Calendar _currentTime = Calendar.getInstance();
+		_currentTime.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), _maxTime.get(Calendar.HOUR_OF_DAY), _maxTime.get(Calendar.MINUTE),
+				_maxTime.get(Calendar.SECOND));
+		long _cDate = _currentTime.getTimeInMillis();
+		if (_cDate > _maxDate) {
+			_maxDate = _cDate;
+		}
+		if (_maxDate > _minDate) {
+			this.datePicker.setMaxDate(_maxDate);
+			this.datePicker.setMinDate(_minDate);
 		}
 		this.datePicker.setCalendarViewShown(false);
 	}
 
-	private void createTime(final int _type, Activity _activity, String _maxDate, String _minDate) {
+	private void createTime(final int _type, Activity _activity, final long _maxDate, final long _minDate) {
 		this.timePicker = new TimePicker(_activity);
 		this.timePicker.setIs24HourView(true);
 		this.timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
 		this.timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 
-		final long _maxData = DoTextHelper.strToLong(_maxDate, MAXDATE);
-		calendar.setTimeInMillis(_maxData);
+		calendar.setTimeInMillis(_maxDate);
 		final int _maxHour = calendar.get(Calendar.HOUR_OF_DAY);
 		final int _maxMinute = calendar.get(Calendar.MINUTE);
 
-		final long _minData = DoTextHelper.strToLong(_minDate, MINDATE);
-		calendar.setTimeInMillis(_minData);
+		calendar.setTimeInMillis(_minDate);
 		final int _minHour = calendar.get(Calendar.HOUR_OF_DAY);
 		final int _minMinute = calendar.get(Calendar.MINUTE);
 
@@ -342,16 +374,16 @@ public class do_DateTimePicker_Model extends DoSingletonModule implements do_Dat
 			@Override
 			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 				if (_type == 0) {
-					if (_maxData > _minData) {
+					if (_maxDate > _minDate) {
 						String _val = String.format(Locale.getDefault(), "%d-%02d-%02d %02d:%02d:00", datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), hourOfDay, minute);
 						long _currentTime = getTime(_val);
-						if (_currentTime > _maxData) { // 当前值大于最大值
-							calendar.setTimeInMillis(_maxData);
+						if (_currentTime > _maxDate) { // 当前值大于最大值
+							calendar.setTimeInMillis(_maxDate);
 							datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), null);
 							timePicker.setCurrentHour(_maxHour);
 							timePicker.setCurrentMinute(_maxMinute);
-						} else if (_currentTime < _minData) { // 当前值小于最小值
-							calendar.setTimeInMillis(_minData);
+						} else if (_currentTime < _minDate) { // 当前值小于最小值
+							calendar.setTimeInMillis(_minDate);
 							datePicker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), null);
 							timePicker.setCurrentHour(_minHour);
 							timePicker.setCurrentMinute(_minMinute);
